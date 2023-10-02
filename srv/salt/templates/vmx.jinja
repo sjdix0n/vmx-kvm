@@ -1,0 +1,53 @@
+--- 
+HOST:
+    identifier                : vmx01   
+    host-management-interface : {{ mgmtint }}
+    routing-engine-image      : "/home/vmx/images/{{ reimage }}"
+    routing-engine-hdd        : "/home/vmx/images/vmxhdd.img"
+    forwarding-engine-image   : "/home/vmx/images/{{ pfeimage }}"
+
+---
+BRIDGES:
+    - type  : external
+      name  : br-ext                  # Max 10 characters
+
+--- 
+CONTROL_PLANE:
+    vcpus       : {{ recores }}
+    memory-mb   : {{ remem }}
+    console_port: {{ reconsole }}
+
+    interfaces  :
+      - type      : static
+        ipaddr    : 10.102.144.94 
+        macaddr   : "0A:00:DD:C0:DE:0E"
+
+--- 
+FORWARDING_PLANE:
+    memory-mb   : {{ pfemem }} 
+    vcpus       : {{ pfecores }}
+    console_port: {{ pfeconsole }}
+    device-type : {{ pfedevicetype }}
+
+    interfaces  :
+      - type      : static
+        ipaddr    : 10.102.144.98
+        macaddr   : "0A:00:DD:C0:DE:10"
+
+---
+JUNOS_DEVICES:
+   - interface            : ge-0/0/0
+     port-speed-mbps      : 10000
+     nic                  : {{ pfeint1 }}
+     mtu                  : {{ pfeint1mtu }}
+     virtual-function     : 0
+     mac-address          : "02:06:0A:0E:FF:F1"
+     description          : "ge-0/0/0 connects to {{ pfeint1 }}"
+
+   - interface            : ge-0/0/1
+     port-speed-mbps      : 10000
+     nic                  : {{ pfeint2 }}
+     mtu                  : {{ pfeint2mtu }}
+     virtual-function     : 0
+     mac-address          : "02:06:0A:0E:FF:F2"
+     description          : "ge-0/0/0 connects to {{ pfeint2 }}"
